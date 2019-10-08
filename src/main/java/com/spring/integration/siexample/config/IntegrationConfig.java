@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Configuration
 public class IntegrationConfig {
 
-    @Bean public IntegrationFlow flow() {
+    @Bean public IntegrationFlow fileMoverUppercaser() {
         log.info("Starting integration flow");
         return IntegrationFlows
                 .from(sourceDirectory(), conf -> conf.poller(Pollers.fixedDelay(5000)))
