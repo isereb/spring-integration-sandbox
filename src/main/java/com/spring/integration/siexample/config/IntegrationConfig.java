@@ -14,12 +14,16 @@ import org.springframework.integration.file.FileReadingMessageSource;
 import org.springframework.integration.file.FileWritingMessageHandler;
 import org.springframework.integration.file.support.FileExistsMode;
 import org.springframework.integration.scheduling.PollerMetadata;
+import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @EnableIntegration
@@ -29,11 +33,24 @@ public class IntegrationConfig {
     @Bean public IntegrationFlow flow() {
         log.info("Starting integration flow");
         return IntegrationFlows
-                .from(sourceDirectory(), conf -> conf.poller(Pollers.fixedDelay(10000)))
+                .from(sourceDirectory(), conf -> conf.poller(Pollers.fixedDelay(5000)))
                 .filter(onlyTxts())
                 .channel(alphabetically())
+                .transform(transformer())
                 .handle(targetDirectory())
                 .get();
+    }
+
+    private GenericTransformer<File, String> transformer() {
+        return source -> {
+            try {
+                return Files.readAllLines(source.toPath()).stream()
+                        .map(String::toUpperCase)
+                        .collect(Collectors.joining("\n"));
+            } catch (IOException e) {
+                return "";
+            }
+        };
     }
 
     @Bean
