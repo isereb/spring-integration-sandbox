@@ -48,6 +48,8 @@ public class IntegrationConfig {
                         .map(String::toUpperCase)
                         .collect(Collectors.joining("\n"));
             } catch (IOException e) {
+                log.error("Something went wrong...");
+                e.printStackTrace();
                 return "";
             }
         };
@@ -65,6 +67,7 @@ public class IntegrationConfig {
     }
 
     @Bean public MessageHandler targetDirectory() {
+        log.info("Target directory handler is handling something");
         FileWritingMessageHandler handler = new FileWritingMessageHandler(new File("output_dir"));
         handler.setFileExistsMode(FileExistsMode.REPLACE);
         handler.setExpectReply(false);
